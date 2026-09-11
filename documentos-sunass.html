@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Documentos SUNASS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Karla:wght@400;500;700&display=swap');
+
+  :root {
+    --kraft: #C7A876;
+    --kraft-dark: #B08F5E;
+    --paper: #FBF6E8;
+    --paper-line: #DCCEA3;
+    --paper-line-soft: #E9DFC0;
+    --ink: #26201A;
+    --ink-soft: #6E6350;
+    --ink-faint: #9C927A;
+    --green: #2E4A34;
+    --green-deep: #1F3325;
+    --green-soft: #E3E9DA;
+    --rust: #93381C;
+    --rust-soft: #EFDACB;
+    --gold: #A67C2E;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Karla', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 48px 14px 80px;
+    background-color: var(--kraft);
+    background-image: linear-gradient(160deg, var(--kraft) 0%, var(--kraft-dark) 100%);
+    display: flex;
+    justify-content: center;
+  }
+
+  .wrap { width: 100%; max-width: 520px; }
+
+  .card {
+    width: 100%;
+    background: var(--paper);
+    padding: 34px 26px 28px;
+    border-radius: 2px;
+    box-shadow: 0 22px 40px -18px rgba(31, 24, 12, 0.55);
+  }
+
+  h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    color: var(--green-deep);
+  }
+  .sub { font-size: 13.5px; color: var(--ink-soft); margin-bottom: 24px; line-height: 1.5; }
+
+  #login input {
+    width: 100%;
+    padding: 13px 14px;
+    font-size: 15px;
+    font-family: 'Space Mono', monospace;
+    border: 1px solid var(--paper-line);
+    background: #fff;
+    border-radius: 2px;
+    margin-bottom: 10px;
+  }
+  #login button {
+    width: 100%;
+    padding: 13px;
+    background: var(--green-deep);
+    color: var(--paper);
+    border: none;
+    border-radius: 2px;
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #login button:hover { background: var(--green); }
+  #login button:disabled { opacity: 0.5; }
+
+  .error { color: var(--rust); font-size: 13px; margin-top: 9px; }
+  .ok { color: var(--green); font-size: 13px; margin-top: 9px; }
+
+  #panel { display: none; }
+
+  .saludo { font-size: 14px; color: var(--ink-soft); margin-bottom: 4px; }
+  .saludo strong { color: var(--ink); }
+  .rol-badge {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--green-deep);
+    background: var(--green-soft);
+    padding: 3px 8px;
+    border-radius: 2px;
+    margin-bottom: 22px;
+  }
+
+  .btn {
+    font-family: 'Karla', sans-serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 11px 14px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--green-deep); color: var(--paper); }
+  .btn-primary:hover { background: var(--green); }
+  .btn-outline { background: #fff; color: var(--ink); border: 1px solid var(--ink); }
+  .btn-outline:hover { background: var(--green-soft); border-color: var(--green); }
+  .btn-block { width: 100%; }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+
+  #btnNuevo { margin-bottom: 20px; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+  .field label { font-size: 11.5px; color: var(--ink-soft); }
+  .field input {
+    font-family: 'Karla', sans-serif;
+    font-size: 14px;
+    padding: 10px;
+    border: 1px solid var(--paper-line);
+    background: #fff;
+    border-radius: 2px;
+    color: var(--ink);
+    width: 100%;
+  }
+  .field input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+
+  #formNuevo {
+    display: none;
+    background: #fff;
+    border: 1px dashed var(--paper-line);
+    border-radius: 2px;
+    padding: 16px;
+    margin-bottom: 22px;
+  }
+  #formNuevo.abierto { display: block; }
+  #msgNuevo { font-size: 12px; margin-top: 4px; }
+
+  .lista-vacia { font-size: 13px; color: var(--ink-soft); text-align: center; padding: 20px 0; }
+
+  .doc-card {
+    background: #fff;
+    border: 1px solid var(--paper-line);
+    border-radius: 2px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .doc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .doc-nro { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 14.5px; color: var(--ink); }
+  .doc-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .doc-badge.ok { color: var(--green-deep); background: var(--green-soft); }
+  .doc-badge.debe { color: var(--rust); background: var(--rust-soft); }
+
+  .doc-linea { font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; line-height: 1.5; }
+  .doc-linea strong { color: var(--ink); }
+  .doc-montos { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--ink); margin: 8px 0; }
+  .doc-montos .pagado { color: var(--green-deep); }
+
+  .doc-links { display: flex; gap: 14px; flex-wrap: wrap; margin: 8px 0 4px; }
+  .doc-links a { font-size: 12.5px; color: var(--green-deep); text-decoration: underline; text-underline-offset: 2px; }
+
+  .doc-obs { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-soft); margin: 8px 0; }
+  .doc-obs input { width: 16px; height: 16px; }
+
+  details.accion { margin-top: 10px; }
+  details.accion summary {
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--green-deep);
+    list-style: none;
+  }
+  details.accion summary::-webkit-details-marker { display: none; }
+  details.accion summary::before { content: '+ '; color: var(--gold); }
+  details.accion[open] summary::before { content: '– '; }
+  details.accion .contenido { padding-top: 10px; }
+
+  .pago-item { font-family: 'Space Mono', monospace; font-size: 12.5px; padding: 6px 0; border-bottom: 1px dotted var(--paper-line); display: flex; justify-content: space-between; }
+  .pago-item:last-child { border-bottom: none; }
+  .pago-item .comentario-pago { font-family: 'Karla', sans-serif; color: var(--ink-soft); font-size: 12px; }
+  .voucher-link { font-family: 'Karla', sans-serif; color: var(--green-deep); text-decoration: underline; }
+
+  .voucher-picker { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .voucher-picker label.btnfile {
+    font-size: 12.5px; padding: 8px 12px; border: 1px solid var(--ink);
+    border-radius: 2px; cursor: pointer; background: #fff; white-space: nowrap;
+  }
+  .voucher-picker label.btnfile:hover { background: var(--green-soft); }
+  .voucher-preview { font-size: 11.5px; color: var(--ink-soft); }
+
+  .salir { margin-top: 22px; background: none; border: none; color: var(--ink-soft); text-decoration: underline; cursor: pointer; font-size: 12px; padding: 0; }
+
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(20,16,10,0.88);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 50; padding: 20px;
+  }
+  .modal-backdrop img { max-width: 100%; max-height: 90vh; border-radius: 2px; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Documentos SUNASS</h1>
+    <div class="sub">Ingresa tu DNI para ver el estado de los documentos.</div>
+
+    <div id="login">
+      <input id="dni" placeholder="DNI" maxlength="8" inputmode="numeric" />
+      <button id="btnConsultar">Consultar</button>
+      <div class="error" id="err"></div>
+    </div>
+
+    <div id="panel">
+      <div class="saludo">Hola, <strong id="nombreUsuario"></strong>.</div>
+      <div class="rol-badge" id="rolBadge"></div>
+
+      <button class="btn btn-primary btn-block" id="btnNuevo" style="display:none">+ Nuevo documento</button>
+
+      <form id="formNuevo">
+        <div class="field">
+          <label for="fNro">Número de documento</label>
+          <input id="fNro" placeholder="Ej. SUNASS-045" required />
+        </div>
+        <div class="field">
+          <label for="fFechaRecepcion">Fecha de recepción</label>
+          <input type="date" id="fFechaRecepcion" required />
+        </div>
+        <div class="field">
+          <label for="fMontoPagar">Monto acordado (S/)</label>
+          <input type="number" id="fMontoPagar" step="0.01" min="0" required />
+        </div>
+        <div class="field">
+          <label>Archivos que llegaron con el documento (fichas, carpeta, etc.)</label>
+          <input type="file" id="fArchivosIniciales" multiple />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Guardar documento</button>
+        <div id="msgNuevo"></div>
+      </form>
+
+      <div id="lista"></div>
+
+      <button class="salir" id="btnSalir">Salir</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+
+<script>
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby4OTUVsLB30CZvMISNApZz-3ZjbSJ5s682WIi-k5gC_M4nOF6LGvTcw6qwfjAXJLtjMw/exec';
+
+  let dniActual = '';
+  let rolActual = '';
+  let documentos = [];
+
+  const dniInput = document.getElementById('dni');
+  const btnConsultar = document.getElementById('btnConsultar');
+  const errEl = document.getElementById('err');
+  const loginEl = document.getElementById('login');
+  const panelEl = document.getElementById('panel');
+  const listaEl = document.getElementById('lista');
+  const btnNuevo = document.getElementById('btnNuevo');
+  const formNuevo = document.getElementById('formNuevo');
+  const msgNuevo = document.getElementById('msgNuevo');
+
+  /* ---------- login ---------- */
+
+  async function consultar() {
+    const dni = dniInput.value.trim();
+    errEl.textContent = '';
+    if (!dni) { errEl.textContent = 'Escribe tu DNI.'; return; }
+    btnConsultar.disabled = true;
+    btnConsultar.textContent = 'Consultando…';
+    try {
+      const res = await fetch(`${APPS_SCRIPT_URL}?dni=${encodeURIComponent(dni)}`);
+      const data = await res.json();
+      if (!data.ok) { errEl.textContent = data.mensaje || 'DNI no autorizado.'; return; }
+      dniActual = dni;
+      aplicarDatos(data);
+    } catch (e) {
+      errEl.textContent = 'No se pudo conectar. Intenta de nuevo.';
+    } finally {
+      btnConsultar.disabled = false;
+      btnConsultar.textContent = 'Consultar';
+    }
+  }
+
+  function aplicarDatos(data) {
+    rolActual = data.rol;
+    documentos = data.documentos || [];
+
+    loginEl.style.display = 'none';
+    panelEl.style.display = 'block';
+    document.getElementById('nombreUsuario').textContent = data.nombre;
+    document.getElementById('rolBadge').textContent = rolActual === 'trabajador' ? 'Rol: trabajador' : 'Rol: cliente';
+
+    btnNuevo.style.display = rolActual === 'trabajador' ? 'block' : 'none';
+
+    const hoy = new Date().toISOString().slice(0, 10);
+    document.getElementById('fFechaRecepcion').value = hoy;
+
+    renderLista();
+  }
+
+  btnConsultar.addEventListener('click', consultar);
+  dniInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') consultar(); });
+
+  document.getElementById('btnSalir').addEventListener('click', () => {
+    panelEl.style.display = 'none';
+    loginEl.style.display = 'block';
+    formNuevo.classList.remove('abierto');
+    dniInput.value = '';
+    dniActual = '';
+  });
+
+  /* ---------- helpers de archivo ---------- */
+
+  function compressImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxW = 900;
+          const scale = Math.min(1, maxW / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.75));
+        };
+        img.onerror = () => reject(new Error('No se pudo leer la imagen'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function leerArchivoCrudo(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Comprime si es imagen; si es PDF/Word/otro, lo manda tal cual.
+  async function archivoAPayload(file) {
+    if (file.type.startsWith('image/')) {
+      const base64 = await compressImage(file);
+      return { base64, mime: 'image/jpeg', nombre: file.name.replace(/\.[^.]+$/, '') + '.jpg' };
+    }
+    const base64 = await leerArchivoCrudo(file);
+    return { base64, mime: file.type || 'application/octet-stream', nombre: file.name };
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  function openModal(src) {
+    const root = document.getElementById('modalRoot');
+    root.innerHTML = '';
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop';
+    backdrop.onclick = () => { root.innerHTML = ''; };
+    const img = document.createElement('img');
+    img.src = src;
+    backdrop.appendChild(img);
+    root.appendChild(backdrop);
+  }
+
+  /* ---------- crear documento (trabajador) ---------- */
+
+  btnNuevo.addEventListener('click', () => {
+    formNuevo.classList.toggle('abierto');
+  });
+
+  formNuevo.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msgNuevo.textContent = '';
+    msgNuevo.className = '';
+
+    const nro = document.getElementById('fNro').value.trim();
+    const fechaRecepcion = document.getElementById('fFechaRecepcion').value;
+    const montoPagar = parseFloat(document.getElementById('fMontoPagar').value);
+    const archivosInput = document.getElementById('fArchivosIniciales');
+
+    if (!nro || !fechaRecepcion || isNaN(montoPagar) || montoPagar <= 0) {
+      msgNuevo.textContent = 'Completa el número, la fecha y un monto válido.';
+      msgNuevo.className = 'error';
+      return;
+    }
+
+    const btn = formNuevo.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Guardando…';
+
+    try {
+      const archivosIniciales = [];
+      for (const file of archivosInput.files) {
+        archivosIniciales.push(await archivoAPayload(file));
+      }
+
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ accion: 'crearDocumento', dni: dniActual, nro, fechaRecepcion, montoPagar, archivosIniciales })
+      });
+      const data = await res.json();
+      if (!data.ok) { msgNuevo.textContent = data.mensaje || 'No se pudo guardar.'; msgNuevo.className = 'error'; return; }
+
+      msgNuevo.textContent = 'Documento registrado.';
+      msgNuevo.className = 'ok';
+      formNuevo.reset();
+      document.getElementById('fFechaRecepcion').value = new Date().toISOString().slice(0, 10);
+      formNuevo.classList.remove('abierto');
+      await recargar();
+    } catch (err) {
+      msgNuevo.textContent = 'Ocurrió un error de conexión.';
+      msgNuevo.className = 'error';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Guardar documento';
+    }
+  });
+
+  async function recargar() {
+    try {
+      const res = await fetch(`${APPS_SCRIPT_URL}?dni=${encodeURIComponent(dniActual)}`);
+      const data = await res.json();
+      if (data.ok) aplicarDatos(data);
+    } catch (e) {}
+  }
+
+  /* ---------- lista de documentos ---------- */
+
+  function renderLista() {
+    listaEl.innerHTML = '';
+    if (documentos.length === 0) {
+      listaEl.innerHTML = '<div class="lista-vacia">Todavía no hay documentos registrados.</div>';
+      return;
+    }
+    documentos.forEach((doc) => listaEl.appendChild(renderDocCard(doc)));
+  }
+
+  function renderDocCard(doc) {
+    const card = document.createElement('div');
+    card.className = 'doc-card';
+    card.dataset.id = doc.id;
+
+    const estadoLinea = doc.fechaEntrega
+      ? `Entregado el <strong>${doc.fechaEntrega}</strong> · ${doc.dias} día(s) desde la recepción`
+      : `En proceso desde hace <strong>${doc.dias} día(s)</strong>`;
+
+    card.innerHTML = `
+      <div class="doc-head">
+        <span class="doc-nro">Nro. ${escapeHtml(doc.nro)}</span>
+        <span class="doc-badge ${doc.completo ? 'ok' : 'debe'}">${doc.completo ? 'COMPLETO' : 'DEBE S/ ' + doc.saldo.toFixed(2)}</span>
+      </div>
+      <div class="doc-linea">Recibido el <strong>${doc.fechaRecepcion}</strong></div>
+      <div class="doc-linea">${estadoLinea}</div>
+      <div class="doc-montos">Pactado S/ ${doc.montoPagar.toFixed(2)} · <span class="pagado">Pagado S/ ${doc.montoPagado.toFixed(2)}</span></div>
+      <div class="doc-links">
+        ${doc.carpetaUrl ? `<a href="${doc.carpetaUrl}" target="_blank" rel="noopener">Ver archivos iniciales</a>` : ''}
+        ${doc.documentoFinalUrl ? `<a href="${doc.documentoFinalUrl}" target="_blank" rel="noopener">Ver documento final</a>` : ''}
+      </div>
+      <div class="doc-obs">
+        <input type="checkbox" class="chk-obs" ${doc.observacionesLevantadas ? 'checked' : ''} ${rolActual !== 'trabajador' ? 'disabled' : ''} />
+        <span>Observaciones levantadas</span>
+      </div>
+      ${accionesHtml(doc)}
+      ${historialPagosHtml(doc)}
+    `;
+
+    // Observaciones (trabajador puede togglear en cualquier momento)
+    if (rolActual === 'trabajador') {
+      card.querySelector('.chk-obs').addEventListener('change', async (e) => {
+        await actualizarObservaciones(doc.id, e.target.checked);
+      });
+    }
+
+    if (rolActual === 'trabajador' && !doc.fechaEntrega) {
+      const formEntrega = card.querySelector('.form-entrega');
+      formEntrega.addEventListener('submit', (e) => enviarEntrega(e, doc));
+    }
+
+    if (rolActual === 'cliente' && !doc.completo) {
+      const formPago = card.querySelector('.form-pago');
+      formPago.addEventListener('submit', (e) => enviarPago(e, doc));
+      const fileInput = card.querySelector('.voucher-input');
+      const preview = card.querySelector('.voucher-preview-text');
+      fileInput.addEventListener('change', () => {
+        preview.textContent = fileInput.files[0] ? fileInput.files[0].name : 'Ningún archivo';
+      });
+    }
+
+    card.querySelectorAll('.voucher-link').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal(a.dataset.url);
+      });
+    });
+
+    return card;
+  }
+
+  function accionesHtml(doc) {
+    if (rolActual === 'trabajador' && !doc.fechaEntrega) {
+      return `
+        <details class="accion">
+          <summary>Marcar como entregado</summary>
+          <div class="contenido">
+            <form class="form-entrega">
+              <div class="field">
+                <label>Documento final (opcional aquí, puedes subirlo después)</label>
+                <input type="file" class="input-final" />
+              </div>
+              <button type="submit" class="btn btn-outline btn-block">Confirmar entrega</button>
+              <div class="msg-entrega" style="font-size:12px;margin-top:6px;"></div>
+            </form>
+          </div>
+        </details>
+      `;
+    }
+    if (rolActual === 'cliente' && !doc.completo) {
+      return `
+        <details class="accion">
+          <summary>Registrar pago</summary>
+          <div class="contenido">
+            <form class="form-pago">
+              <div class="field">
+                <label>Monto del abono (S/)</label>
+                <input type="number" class="input-monto-pago" step="0.01" min="0" required />
+              </div>
+              <div class="field">
+                <label>Comentario (opcional)</label>
+                <input type="text" class="input-comentario-pago" placeholder="Opcional" />
+              </div>
+              <div class="voucher-picker">
+                <label class="btnfile">Adjuntar voucher
+                  <input type="file" class="voucher-input" accept="image/*" style="display:none" />
+                </label>
+                <span class="voucher-preview-text">Ningún archivo</span>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Guardar abono</button>
+              <div class="msg-pago" style="font-size:12px;margin-top:6px;"></div>
+            </form>
+          </div>
+        </details>
+      `;
+    }
+    return '';
+  }
+
+  function historialPagosHtml(doc) {
+    if (!doc.pagos || doc.pagos.length === 0) return '';
+    const items = doc.pagos.map((p) => `
+      <div class="pago-item">
+        <span>${p.fecha} · S/ ${p.monto.toFixed(2)}${p.voucherUrl ? ` · <a href="#" class="voucher-link" data-url="${p.voucherUrl}">ver voucher</a>` : ''}</span>
+      </div>
+      ${p.comentario ? `<div class="comentario-pago">${escapeHtml(p.comentario)}</div>` : ''}
+    `).join('');
+    return `
+      <details class="accion">
+        <summary>Historial de abonos (${doc.pagos.length})</summary>
+        <div class="contenido">${items}</div>
+      </details>
+    `;
+  }
+
+  /* ---------- marcar entregado ---------- */
+
+  async function enviarEntrega(e, doc) {
+    e.preventDefault();
+    const form = e.target;
+    const msg = form.querySelector('.msg-entrega');
+    const btn = form.querySelector('button[type="submit"]');
+    const fileInput = form.querySelector('.input-final');
+
+    btn.disabled = true;
+    btn.textContent = 'Guardando…';
+    msg.textContent = '';
+
+    try {
+      let documentoFinal = null;
+      if (fileInput.files[0]) documentoFinal = await archivoAPayload(fileInput.files[0]);
+
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          accion: 'marcarEntregado',
+          dni: dniActual,
+          documentoId: doc.id,
+          documentoFinal,
+          observacionesLevantadas: doc.observacionesLevantadas
+        })
+      });
+      const data = await res.json();
+      if (!data.ok) { msg.textContent = data.mensaje || 'No se pudo guardar.'; msg.className = 'msg-entrega error'; return; }
+      await recargar();
+    } catch (err) {
+      msg.textContent = 'Ocurrió un error de conexión.';
+      msg.className = 'msg-entrega error';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Confirmar entrega';
+    }
+  }
+
+  async function actualizarObservaciones(documentoId, levantadas) {
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ accion: 'actualizarObservaciones', dni: dniActual, documentoId, observacionesLevantadas: levantadas })
+      });
+      await recargar();
+    } catch (err) {}
+  }
+
+  /* ---------- registrar pago (cliente) ---------- */
+
+  async function enviarPago(e, doc) {
+    e.preventDefault();
+    const form = e.target;
+    const msg = form.querySelector('.msg-pago');
+    const btn = form.querySelector('button[type="submit"]');
+    const monto = parseFloat(form.querySelector('.input-monto-pago').value);
+    const comentario = form.querySelector('.input-comentario-pago').value.trim();
+    const fileInput = form.querySelector('.voucher-input');
+
+    if (isNaN(monto) || monto <= 0) {
+      msg.textContent = 'Ingresa un monto válido.';
+      msg.className = 'msg-pago error';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Guardando…';
+    msg.textContent = '';
+
+    try {
+      let voucher = null;
+      if (fileInput.files[0]) voucher = await archivoAPayload(fileInput.files[0]);
+
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ accion: 'registrarPago', dni: dniActual, documentoId: doc.id, monto, comentario, voucher })
+      });
+      const data = await res.json();
+      if (!data.ok) { msg.textContent = data.mensaje || 'No se pudo guardar.'; msg.className = 'msg-pago error'; return; }
+      await recargar();
+    } catch (err) {
+      msg.textContent = 'Ocurrió un error de conexión.';
+      msg.className = 'msg-pago error';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Guardar abono';
+    }
+  }
+</script>
+</body>
+</html>
