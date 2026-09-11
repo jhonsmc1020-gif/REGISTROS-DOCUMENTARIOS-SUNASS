@@ -424,7 +424,8 @@
       formNuevo.reset();
       document.getElementById('fFechaRecepcion').value = new Date().toISOString().slice(0, 10);
       formNuevo.classList.remove('abierto');
-      await recargar();
+      documentos.unshift(data.documento);
+      renderLista();
     } catch (err) {
       msgNuevo.textContent = 'Ocurrió un error de conexión.';
       msgNuevo.className = 'error';
@@ -440,6 +441,12 @@
       const data = await res.json();
       if (data.ok) aplicarDatos(data);
     } catch (e) {}
+  }
+
+  function reemplazarDocumentoLocal(docActualizado) {
+    const idx = documentos.findIndex((d) => d.id === docActualizado.id);
+    if (idx !== -1) documentos[idx] = docActualizado;
+    renderLista();
   }
 
   /* ---------- lista de documentos ---------- */
@@ -609,7 +616,7 @@
       });
       const data = await res.json();
       if (!data.ok) { msg.textContent = data.mensaje || 'No se pudo guardar.'; msg.className = 'msg-entrega error'; return; }
-      await recargar();
+      reemplazarDocumentoLocal(data.documento);
     } catch (err) {
       msg.textContent = 'Ocurrió un error de conexión.';
       msg.className = 'msg-entrega error';
@@ -621,12 +628,13 @@
 
   async function actualizarObservaciones(documentoId, levantadas) {
     try {
-      await fetch(APPS_SCRIPT_URL, {
+      const res = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({ accion: 'actualizarObservaciones', dni: dniActual, documentoId, observacionesLevantadas: levantadas })
       });
-      await recargar();
+      const data = await res.json();
+      if (data.ok) reemplazarDocumentoLocal(data.documento);
     } catch (err) {}
   }
 
@@ -662,7 +670,7 @@
       });
       const data = await res.json();
       if (!data.ok) { msg.textContent = data.mensaje || 'No se pudo guardar.'; msg.className = 'msg-pago error'; return; }
-      await recargar();
+      reemplazarDocumentoLocal(data.documento);
     } catch (err) {
       msg.textContent = 'Ocurrió un error de conexión.';
       msg.className = 'msg-pago error';
