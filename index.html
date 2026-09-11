@@ -244,10 +244,6 @@
           <label for="fMontoPagar">Monto acordado (S/)</label>
           <input type="number" id="fMontoPagar" step="0.01" min="0" required />
         </div>
-        <div class="field">
-          <label>Archivos que llegaron con el documento (fichas, carpeta, etc.)</label>
-          <input type="file" id="fArchivosIniciales" multiple />
-        </div>
         <button type="submit" class="btn btn-primary btn-block">Guardar documento</button>
         <div id="msgNuevo"></div>
       </form>
@@ -262,7 +258,7 @@
 <div id="modalRoot"></div>
 
 <script>
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby4OTUVsLB30CZvMISNApZz-3ZjbSJ5s682WIi-k5gC_M4nOF6LGvTcw6qwfjAXJLtjMw/exec';
+  const APPS_SCRIPT_URL = 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT';
 
   let dniActual = '';
   let rolActual = '';
@@ -403,7 +399,6 @@
     const nro = document.getElementById('fNro').value.trim();
     const fechaRecepcion = document.getElementById('fFechaRecepcion').value;
     const montoPagar = parseFloat(document.getElementById('fMontoPagar').value);
-    const archivosInput = document.getElementById('fArchivosIniciales');
 
     if (!nro || !fechaRecepcion || isNaN(montoPagar) || montoPagar <= 0) {
       msgNuevo.textContent = 'Completa el número, la fecha y un monto válido.';
@@ -416,15 +411,10 @@
     btn.textContent = 'Guardando…';
 
     try {
-      const archivosIniciales = [];
-      for (const file of archivosInput.files) {
-        archivosIniciales.push(await archivoAPayload(file));
-      }
-
       const res = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ accion: 'crearDocumento', dni: dniActual, nro, fechaRecepcion, montoPagar, archivosIniciales })
+        body: JSON.stringify({ accion: 'crearDocumento', dni: dniActual, nro, fechaRecepcion, montoPagar })
       });
       const data = await res.json();
       if (!data.ok) { msgNuevo.textContent = data.mensaje || 'No se pudo guardar.'; msgNuevo.className = 'error'; return; }
@@ -481,8 +471,7 @@
       <div class="doc-linea">${estadoLinea}</div>
       <div class="doc-montos">Pactado S/ ${doc.montoPagar.toFixed(2)} · <span class="pagado">Pagado S/ ${doc.montoPagado.toFixed(2)}</span></div>
       <div class="doc-links">
-        ${doc.carpetaUrl ? `<a href="${doc.carpetaUrl}" target="_blank" rel="noopener">Ver archivos iniciales</a>` : ''}
-        ${doc.documentoFinalUrl ? `<a href="${doc.documentoFinalUrl}" target="_blank" rel="noopener">Ver documento final</a>` : ''}
+        ${doc.carpetaUrl ? `<a href="${doc.carpetaUrl}" target="_blank" rel="noopener">Ver archivos del documento</a>` : ''}
       </div>
       <div class="doc-obs">
         <input type="checkbox" class="chk-obs" ${doc.observacionesLevantadas ? 'checked' : ''} ${rolActual !== 'trabajador' ? 'disabled' : ''} />
@@ -532,8 +521,8 @@
           <div class="contenido">
             <form class="form-entrega">
               <div class="field">
-                <label>Documento final (opcional aquí, puedes subirlo después)</label>
-                <input type="file" class="input-final" />
+                <label>Documentos finales — Word, Excel, PDF, etc. Puedes elegir varios a la vez (opcional aquí, puedes subirlos después)</label>
+                <input type="file" class="input-final" multiple />
               </div>
               <button type="submit" class="btn btn-outline btn-block">Confirmar entrega</button>
               <div class="msg-entrega" style="font-size:12px;margin-top:6px;"></div>
@@ -602,8 +591,10 @@
     msg.textContent = '';
 
     try {
-      let documentoFinal = null;
-      if (fileInput.files[0]) documentoFinal = await archivoAPayload(fileInput.files[0]);
+      const documentosFinales = [];
+      for (const file of fileInput.files) {
+        documentosFinales.push(await archivoAPayload(file));
+      }
 
       const res = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
@@ -612,7 +603,7 @@
           accion: 'marcarEntregado',
           dni: dniActual,
           documentoId: doc.id,
-          documentoFinal,
+          documentosFinales,
           observacionesLevantadas: doc.observacionesLevantadas
         })
       });
